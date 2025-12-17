@@ -10,9 +10,10 @@ def read_args():
 
 
 def main():
+    ENCODING = "ISO-8859-1"
+
     print(socket.gethostbyname("www.google.com"))
 
-    encoding = "ISO-8859-1"
     args = read_args()
     dest = (args[0], int(args[1]))
 
@@ -32,7 +33,7 @@ def main():
 
         print(request)
 
-        s.sendall(request.encode(encoding))
+        s.sendall(request.encode(ENCODING))
 
         resp_bytes = []
         while True:
@@ -41,7 +42,7 @@ def main():
                 break
             resp_bytes.append(d)
 
-        resp = ''.join([x.decode(encoding) for x in resp_bytes])
+        resp = ''.join([x.decode(ENCODING) for x in resp_bytes])
 
         print(resp)
 
