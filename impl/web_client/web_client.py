@@ -1,29 +1,18 @@
-import sys
 import socket
 
 
-def read_args():
-    args = ['example.com', '80']
-    for i in range(min(len(args), len(sys.argv) - 1)):
-        args[i] = sys.argv[i + 1]
-    return args
-
-
-def main():
+def run_web_client(host: str, port: int) -> None:
     ENCODING = "ISO-8859-1"
 
     print(socket.gethostbyname("www.google.com"))
 
-    args = read_args()
-    dest = (args[0], int(args[1]))
-
     with socket.socket() as s:
-        s.connect(dest)
+        s.connect((host, port))
 
         content = 'qwertyuiopasdfghjklzxcvbnm'
         headers = [
             'GET / HTTP/1.1',
-            f'Host: {args[0]}',
+            f'Host: {host}',
             f'Content-Length: {len(content)}',
             'Connection: close',
             '',
@@ -45,7 +34,3 @@ def main():
         resp = ''.join([x.decode(ENCODING) for x in resp_bytes])
 
         print(resp)
-
-
-if __name__ == "__main__":
-    main()

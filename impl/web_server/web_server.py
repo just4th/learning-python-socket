@@ -1,16 +1,10 @@
+#!/usr/bin/env python3
+
 import socket
-import sys
-from common.http_parser import HeadersParser
+from impl.common.http_parser import HeadersParser
 
 encoding = "ISO-8859-1"
 header_parser = HeadersParser()
-
-
-def read_args() -> list[str]:
-    args = ['28333']
-    for i in range(min(len(args), len(sys.argv) - 1)):
-        args[i] = sys.argv[i + 1]
-    return args
 
 
 def handle_connection(s):
@@ -43,19 +37,10 @@ def handle_connection(s):
         new_soc.send(resp.encode(encoding))
 
 
-def main():
-    args = read_args()
-    port = int(args[0])
+def run_web_server(port: int):
     with socket.socket() as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(('', port))
         s.listen()
         while True:
             handle_connection(s)
-
-
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('Interrupted')
