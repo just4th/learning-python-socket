@@ -1,4 +1,9 @@
 import typing
+import socket
+
+MAX_LOOP_ITERATIONS = 1000000
+encoding = "ISO-8859-1"
+
 
 class HeadersParser:
     __length_header = "content-length"
@@ -23,7 +28,7 @@ class HeadersParser:
         if len(self.__start_line) == 0:
             self.__start_line = line
             return None
-        
+
         i = line.find(':')
         if i == -1:
             return line
@@ -35,45 +40,45 @@ class HeadersParser:
         if key == self.__length_header:
             self.__content_length = int(value)
         return None
-        
+
     def parse(self, s: socket.socket):
         self.__reset()
         connection_closed = False
-        for _ in range(max_loop_iterations):
+        for _ in range(MAX_LOOP_ITERATIONS):
             byte_data = s.recv(self.__recv_buffer)
             if byte_data == 0:
                 connection_closed = True
-                print(f'Error, connection closed')
+                print('Error, connection closed')
                 break
-            
+
             data = self.__header_prefix + byte_data.decode(encoding)
             self.__header_prefix = ''
-            
-            l = 0
+
+            left = 0
             has_empty_line = False
             for i in range(1, len(data)):
                 if data[i] != '\n' or data[i - 1] != '\r':
                     continue
 
-                self.__header_prefix = data[l:i - 1]
-                l = i + 1
+                self.__header_prefix = data[left:i - 1]
+                left = i + 1
 
                 not_parsed = self.__add_header()
                 if not_parsed is None:
                     continue
-                
+
                 if len(not_parsed) == 0:
                     has_empty_line = True
                 else:
                     print(f'Error, not a header: {not_parsed}')
                 break
 
-            self.__header_prefix = data[l:]
-            
+            self.__header_prefix = data[left:]
+
             if not has_empty_line:
                 continue
-            
-            if l != len(data):
+
+            if left != len(data):
                 self.__content = self.__header_prefix
                 self.__header_prefix = ''
                 break
@@ -81,14 +86,14 @@ class HeadersParser:
         if connection_closed:
             return (self.__headers, self.__content)
 
-        for _ in range(max_loop_iterations):
+        for _ in range(MAX_LOOP_ITERATIONS):
             if len(self.__content) >= self.__content_length:
                 break
             byte_data = s.recv(self.__recv_buffer)
             if byte_data == 0:
                 connection_closed = True
-                print(f'Error, connection closed')
+                print('Error, connection closed')
                 break
             self.__content += byte_data.decode(encoding)
-        
+
         return (self.__start_line, self.__headers, self.__content)

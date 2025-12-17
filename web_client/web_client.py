@@ -30,7 +30,7 @@ def main():
         ]
         request = '\r\n'.join(headers)
 
-        print (request)
+        print(request)
 
         s.sendall(request.encode(encoding))
 
@@ -46,5 +46,5 @@ def main():
         print(resp)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
